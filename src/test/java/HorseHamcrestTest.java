@@ -5,26 +5,30 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class HorseTest {
+class HorseHamcrestTest {
     Horse horse;
 
     @BeforeEach
     void setUp() {
         horse = new Horse("test_horse", 10.5, 99.9);
     }
-
-
+    @AfterEach
+    void tearDown() {
+        horse = new Horse("test_horse", 10.5, 99.9);
+    }
     @Test
-    void givenFirstParametrNull_whenCreateHorse_thenIllegalArgumentException() {
-        Throwable exception = assertThrows(IllegalArgumentException.class,
-                () -> {
-                    new Horse(null, 1.0f, 1.0f);
-                });
-        assertEquals("Name cannot be null.", exception.getMessage());
+    void givenNull_whenCreateHorse_thenIllegalArgumentException(){
+        horse = null;
+        Throwable exception = assertThrows(IllegalArgumentException.class,()->{
+            new Horse(null, 1.0f, 1.0f);
+        });
+        assertThat(exception.getMessage(),is("Name cannot be null."));
     }
 
     @ParameterizedTest
@@ -34,48 +38,43 @@ class HorseTest {
                 () -> {
                     new Horse(name, 1.0f, 1.0f);
                 });
-        assertEquals("Name cannot be blank.", exception.getMessage());
+        assertThat(exception.getMessage(),is("Name cannot be blank."));
     }
-
     @Test
     void givenSecondParametrNegative_whenCreateHorse_thenIllegalArgumentException() {
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
                     new Horse("Test_horse", -10, 1.0f);
                 });
-        assertEquals("Speed cannot be negative.", exception.getMessage());
+        assertThat(exception.getMessage(),is("Speed cannot be negative."));
     }
-
     @Test
     void givenThirdParametrNegative_whenCreateHorse_thenIllegalArgumentException() {
         Throwable exception = assertThrows(IllegalArgumentException.class,
                 () -> {
                     new Horse("Test_horse", 10, -10);
                 });
-        assertEquals("Distance cannot be negative.", exception.getMessage());
+        assertThat(exception.getMessage(),is("Distance cannot be negative."));
     }
-
     @Test
     void givenHorseWithName_whenGetName_thenReturnCorrectName() {
-        assertEquals("test_horse", horse.getName());
+        assertThat(horse.getName(),is("test_horse"));
     }
 
     @Test
     void givenHorseWithSpeed_whenGetSpeed_thenReturnCorrectSpeed() {
-        assertEquals(10.5, horse.getSpeed());
+        assertThat(horse.getSpeed(),is(10.5));
     }
-
     @Test
     void givenHorseWithDistance_whenGetDistance_thenReturnCorrectDistance() {
-        assertEquals(99.9, horse.getDistance());
+        assertThat(horse.getDistance(),is(99.9));
     }
 
     @Test
     void givenHorseWithTwoParametr_whenGetDistance_thenReturnZero() {
         horse = new Horse("test_horse", 10.5);
-        assertEquals(0.0, horse.getDistance());
+        assertThat(horse.getDistance(),is(0.0));
     }
-
     @Test
     void givenHorseInstance_whenMove_thenCallsGetRandomDoubleWithCorrectParameters() {
         try (MockedStatic<Horse> horseMockedStatic = Mockito.mockStatic(Horse.class)) {
@@ -91,7 +90,7 @@ class HorseTest {
             horseMockedStatic.when(() -> Horse.getRandomDouble(0.2, 0.9)).thenReturn(randomValue);
             double distance = horse.getDistance() + horse.getSpeed() * randomValue;
             horse.move();
-            assertEquals(distance, horse.getDistance());
+            assertThat(horse.getDistance(),is(distance));
         }
     }
 
